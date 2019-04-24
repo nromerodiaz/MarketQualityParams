@@ -15,7 +15,7 @@ The code in this repository uses Trade and Quote data (TAQ) in order to calculat
 ## Data preprocessing
 ---
 
-In order to calculate the different parameters of interest, our data must be preprocessed and stardadized. The preprocessing sequence is presented in the `DaskPreprocessing.ipynb` jupyter notebook.
+In order to calculate the different parameters of interest, our data must be preprocessed and standardized. The preprocessing pipeline is presented in the `DaskPreprocessing.ipynb` jupyter notebook.
 
  1. The first function is the `GetDate()` function. This functions takes a dataframe of stock data as input. Then, the function outputs a pandas dataframe consisiting of the unique days for which the `stockdata` dataframe contains information. 
 
@@ -45,7 +45,7 @@ def GetDate(stockdata):
 
  2. The `StockPreprocessing()` function simultaneously initializes several columns and market quality parameters for a given stock ticker (`stockticker`) contained within `stockdata`. These columns and parameters are: `name`, `date_time`, `type`, `price`, `volume`, `BID`, `ASK`, `Mid_Price` and `Quoted_Spread` columns. Market quality parameters are computed daily, and are subsequently concatenated into the original `stockdata` dataframe.
  
-```python
+```Python
 
 # Funcion que inicializa las columnas: 'nombre', 'date_time', 'tipo', 'precio', 'volumen',
 #                                      'BID', 'ASK', 'Mid_Price', 'Quoted_Spread'
@@ -97,18 +97,15 @@ def StockPreprocessing(stockdata, stock_ticker):
         BA_df.BID = np.multiply(bid.values, stockdailydata.precio.values)
         BA_df.ASK = np.multiply(ask.values, stockdailydata.precio.values)
         
-        #BA_df['BID'].replace(to_replace = 0, method = 'ffill')
-        #BA_df['ASK'].replace(to_replace = 0, method = 'ffill')
+        
         BA_df['BID'] = BA_df['BID'].replace(to_replace = 0, method = 'ffill').values
         BA_df['ASK'] = BA_df['ASK'].replace(to_replace = 0, method = 'ffill').values
         
-        BA_df = BA_df.where(BA_df.BID <= BA_df.ASK, np.nan) #np.nan
+        BA_df = BA_df.where(BA_df.BID <= BA_df.ASK, np.nan)
         
         BA_df['Mid_price']     = 0.5*(BA_df['BID'].values + BA_df['ASK'].values)
         BA_df['Quoted_Spread'] = (BA_df['ASK'].values - BA_df['BID'].values)/(BA_df.Mid_price.values)
-            
-        #BA_df.index = stockdailydata.index
-        
+                    
         BA.append(BA_df)
     
     BA = pd.concat(BA, axis=0)
