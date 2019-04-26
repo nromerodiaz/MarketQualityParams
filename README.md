@@ -1,7 +1,6 @@
 # MarketQualityParams
-
-*Calculating and visualizing market quality parameters*
 ---
+*Calculating and visualizing market quality parameters*
 
 The code in this repository uses Trade and Quote data (TAQ) in order to calculate and visualize intraday market quality parameters such as volume, volatility, mid-price and spread. This file summarizes the functions implemented in the calculations of these parameters, as well as the functions for the visualizations generated.
 
@@ -225,6 +224,10 @@ def StockDepth(stockdata):
 ## Buy-sell
 ---
 
+The function `InitiatingParty()` calculates the order of a `TRADE` operation, i.e. if a trade is initiated by a buyer or by a seller. If the transaction is started by the buying side, the direction D is defined as D=+1 , and D=-1 if it was started by a seller.
+
+This function takes the `stockdata` dataframe and filters out `BID` or `ASK` quotes that are not fulfilled. By checking if the price of the executed trade is greater or lower than the `Mid_Price` value (corresponding to a buyer or a seller respectively), we assign a new column `initiated` to the filtered `stockdata` dataframe. This filtered dataframe with the `initiated` column is subsequently returned by the function.
+
 ```Python
 def InitiatingParty(stockdata):
     '''
@@ -253,8 +256,12 @@ def InitiatingParty(stockdata):
     return x
 ```
 
+The direction of a transaction can then be used to assess the price impact of a trade operation.
+
 ## Price impact
 ---
+
+There are several price impact measures in academic literature. The one considered in this work is the Kyle impact regression (Kyle, 1985). This estimation requires us to compute the change in price and the order flow of a transaction. These parameters are obtained by applying the `ImpactParameters()` described  below.
 
 ```Python
 def ImpactParameters(stockdata):
@@ -272,6 +279,8 @@ def ImpactParameters(stockdata):
     res_df = pd.concat(res, axis=0)
     return res_df
 ```
+
+The `KyleImpactRegression()` function takes the dataframe returned by the `ImpactParameter()` and applies an ordinary least squares regression. The corresponding day, regression coefficient, p-values and the number of trades are outputed as a pandas dataframe by this function.
 
 ```Python
 def KyleImpactRegression(stockdata):
