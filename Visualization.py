@@ -132,7 +132,7 @@ def get_stock_param(stockdata, stockticker, param_name):
         return spread15minF
 
     # Volumen
-    elif(param_name == "Volumen"):
+    elif(param_name == "Log-volumen"):
         x1 = stockdata[stockdata.tipo == "TRADE"]
 
         vol15min = x1.volumen.resample("15T").sum().fillna(value=0)
